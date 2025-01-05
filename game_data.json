@@ -1,10 +1,11 @@
 {
   "title": "Aussie Photo Bingo",
-  "footer": "Created by Brian and Gemini",
+  "footer": "Created by Brian Gemini",
   "words": [
     "Kangaroo", "Koala", "Sydney Opera House", "Uluru", "Great Barrier Reef",
-    "Tasmanian Devil", "Emu",
+    "Bondi Beach", "12 Apostles", "Kakadu National Park", "Tasmanian Devil", "Emu",
     "Boomerang", "Didgeridoo", "Vegemite", "Tim Tam", "Lamington",
-    "Outback", "Desert", "Rainforest", "Coastline", "Waterfall"
+    "Outback", "Desert", "Rainforest", "Coastline", "Waterfall",
+    "Sunset", "Sunrise", "Rainbow", "Starry Sky", "Wildlife"
   ]
 }
