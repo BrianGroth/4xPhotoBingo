@@ -63,14 +63,35 @@
             border-radius: 5px;
             cursor: pointer;
             display: none;
+            z-index: 1; /* Ensure button is above the image */
         }
 
-        #win-message {
+        .win-container {
             display: none;
-            font-size: 2em;
-            color: green;
-            text-align: center;
-            margin: 20px 0;
+            flex-direction: column;
+            align-items: center;
+            position: fixed;
+            z-index: 2;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.7);
+            justify-content: center;
+            pointer-events: none; /* Prevent clicks on background */
+        }
+
+        .win-message {
+            font-size: 4em;
+            color: gold;
+            text-shadow: 2px 2px 4px #000000;
+            animation: pulse 1.5s infinite alternate;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.1); }
         }
 
         footer {
@@ -79,28 +100,11 @@
             background-color: #eee;
             width: 100%;
         }
-        .win-container{
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            position: fixed;
-            z-index: 1;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgb(0,0,0);
-            background-color: rgba(0,0,0,0.4);
-            justify-content: space-between;
-            pointer-events: none;
-        }
     </style>
 </head>
 <body>
     <div class="win-container" id="win-container">
-        <div id="win-message-top" style="margin-top: 20px;">You Win!</div>
-        <div id="win-message-bottom" style="margin-bottom: 20px;">You Win!</div>
+        <div class="win-message">You Win!</div>
     </div>
     <header id="game-title">
         <h1>Photo Bingo</h1>
@@ -118,6 +122,7 @@
                 const grid = document.getElementById('game-grid');
                 let words = gameData.words;
                 let selectedWords = [];
+
                 for (let i = 0; i < 4; i++) {
                     const randomIndex = Math.floor(Math.random() * words.length);
                     selectedWords.push(words.splice(randomIndex, 1)[0]);
@@ -147,20 +152,24 @@
                                 gridItem.innerHTML = '';
                                 gridItem.appendChild(img);
 
-                                const saveButton = document.createElement('button');
-                                saveButton.classList.add('save-button');
-                                saveButton.textContent = "Save";
-                                gridItem.appendChild(saveButton);
-                                saveButton.style.display = 'block';
+                                let saveButton = gridItem.querySelector('.save-button');
+                                if (!saveButton) {
+                                    saveButton = document.createElement('button');
+                                    saveButton.classList.add('save-button');
+                                    saveButton.textContent = "Save";
+                                    gridItem.appendChild(saveButton);
+                                    saveButton.style.display = 'block';
 
-                                saveButton.addEventListener('click', () => {
-                                    const link = document.createElement('a');
-                                    link.href = img.src;
-                                    link.download = word + ".png";
-                                    document.body.appendChild(link);
-                                    link.click();
-                                    document.body.removeChild(link);
-                                });
+                                    saveButton.addEventListener('click', (event) => {
+                                        event.stopPropagation();
+                                        const link = document.createElement('a');
+                                        link.href = img.src;
+                                        link.download = word + ".png";
+                                        document.body.appendChild(link);
+                                        link.click();
+                                        document.body.removeChild(link);
+                                    });
+                                }
 
                                 imagesLoaded++;
                                 if (imagesLoaded === 4) {
