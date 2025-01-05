@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo Bingo</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between; /* Distribute space between header, grid, and footer */
+            min-height: 100vh; /* Ensure body covers full viewport height */
+            margin: 0;
+            background-color: #f0f0f0;
+            color: #333;
+        }
+
+        header {
+            text-align: center;
+            padding: 20px;
+        }
+
+        #game-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-gap: 10px;
+            width: 90%;
+            max-width: 400px;
+            margin-bottom: 20px; /* Add margin to separate grid from footer */
+        }
+
+        .grid-item {
+            border: 2px dashed #ccc;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            aspect-ratio: 1/1;
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+            background-color: white;
+        }
+
+        .grid-item img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: cover;
+        }
+
+        .save-button {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: none; /* Hidden by default */
+        }
+        #win-message {
+            display: none;
+            font-size: 2em;
+            color: green;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 10px;
+            background-color: #eee;
+            width: 100%;
+        }
+
+        /* Modern Styling */
+        body {
+            font-family: 'Arial', sans-serif;
+        }
+        .grid-item {
+            border-radius: 8px;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+        }
+
+    </style>
+</head>
+<body>
+    <header id="game-title">
+        <h1>Photo Bingo</h1>
+    </header>
+    <div id="game-grid"></div>
+    <div id="win-message">You Win!</div>
+    <footer id="game-footer"></footer>
+
+    <script>
+        fetch('game_data.json')
+            .then(response => response.json())
+            .then(gameData => {
+                document.getElementById('game-title').textContent = gameData.title;
+                document.getElementById('game-footer').textContent = gameData.footer;
+
+                const grid = document.getElementById('game-grid');
+                let words = gameData.words;
+                let selectedWords = [];
+                for (let i = 0; i < 4; i++) {
+                    const randomIndex = Math.floor(Math.random() * words.length);
+                    selectedWords.push(words.splice(randomIndex, 1)[0]);
+                }
+
+                let imagesLoaded = 0;
+
+                selectedWords.forEach(word => {
+                    const gridItem = document.createElement('div');
+                    gridItem.classList.add('grid-item');
+                    gridItem.textContent = word;
+                    grid.appendChild(gridItem);
+
+                    gridItem.addEventListener('click', () => {
+                        const input = document.createElement('input');
+                        input.type = 'file';
+                        input.accept = 'image/*';
+                        input.click();
+
+                        input.addEventListener('change', (event) => {
+                            const file = event.target.files[0];
+                            const reader = new FileReader();
+
+                            reader.onload = (e) => {
+                                const img = document.createElement('img');
+                                img.src = e.target.result;
+                                gridItem.innerHTML = ''; // Clear the word
+                                gridItem.appendChild(img);
+
+                                const saveButton = document.createElement('button');
+                                saveButton.classList.add('save-button');
+                                saveButton.textContent = "Save";
+                                gridItem.appendChild(saveButton);
+                                saveButton.style.display = 'block';
+
+                                saveButton.addEventListener('click', () => {
+                                    const link = document.createElement('a');
+                                    link.href = img.src;
+                                    link.download = word + ".png"; // Or a more dynamic name
+                                    link.click();
+                                });
+
+                                imagesLoaded++;
+                                if (imagesLoaded === 4) {
+                                    document.getElementById('win-message').style.display = 'block';
+                                }
+                            };
+                            reader.readAsDataURL(file);
+                        });
+                    });
+                });
+            });
+    </script>
+</body>
+</html>
